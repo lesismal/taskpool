@@ -1,6 +1,9 @@
 package taskpool
 
-import "sync"
+import (
+	"sync"
+	"time"
+)
 
 type Pool struct {
 	closed bool
@@ -17,6 +20,12 @@ type Pool struct {
 func (p *Pool) Stop() {
 	p.closed = true
 	p.cond.Broadcast()
+	for {
+		if p.concurrency == 0 {
+			return
+		}
+		time.Sleep(time.Second / 100)
+	}
 }
 
 func (p *Pool) Go(f func()) {
